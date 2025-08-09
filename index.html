@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quípama — Banco de Estadísticas</title>
+  <meta name="description" content="Indicadores oficiales de Quípama, Boyacá: demografía, vivienda, educación, salud, servicios, pobreza, economía y tejido empresarial." />
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton:wght@400&family=Montserrat:wght@400;500;600;700&family=Yesteryear&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --green:#007A3D; --red:#CE1126; --blue:#05006D; --ink:#303642; --white:#fff; --black:#000;
+      --heading:'Anton', 'Montserrat', system-ui, sans-serif;
+      --body:'Montserrat', system-ui, sans-serif;
+      --script:'Yesteryear', cursive;
+    }
+    body{ font-family:var(--body); }
+    .brand-gradient{ background:linear-gradient(90deg,var(--green),var(--blue)); }
+  </style>
+</head>
+<body class="bg-indigo-50">
+  <div id="root"></div>
+
+  <!-- React 18 / ReactDOM y Babel para JSX en un solo archivo -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Recharts UMD -->
+  <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
+
+  <script type="text/babel">
+    const { useMemo, useState } = React;
+    const { ResponsiveContainer, PieChart, Pie, Cell, Tooltip:ReTooltip, Legend, BarChart, Bar, CartesianGrid, XAxis, YAxis } = Recharts;
+
+    const CARDS = [
+      { label: 'Población total (2021)', value: '5.017' },
+      { label: 'Urbana', value: '1.433' },
+      { label: 'Rural', value: '3.584' },
+      { label: 'Densidad (hab/km²)', value: '27,27' },
+    ];
+
+    const urbanRural = [ {name:'Urbana', value:1433}, {name:'Rural', value:3584} ];
+
+    const serviciosPublicos = [
+      { indicador: 'Electricidad', valor: 90.5 },
+      { indicador: 'Acueducto urbano', valor: 100 },
+      { indicador: 'Acueducto rural', valor: 8.95 },
+      { indicador: 'Acueducto total', valor: 28.8 },
+      { indicador: 'Alcantarillado rural', valor: 3.28 },
+    ];
+
+    const SECTIONS = [
+      { title:'Demografía (DANE / ASIS 2021)', rows:[
+        ['Población total','5.017','2021','DANE – ASIS Quípama 2021'],
+        ['Población urbana','1.433','2021','DANE – ASIS Quípama 2021'],
+        ['Población rural','3.584','2021','DANE – ASIS Quípama 2021'],
+        ['Densidad poblacional (hab/km²)','27,27','2021','DANE – ASIS Quípama 2021'],
+      ]},
+      { title:'Vivienda y hogares (DANE / ASIS 2021)', rows:[
+        ['Total viviendas','2.053','2021','DANE – ASIS Quípama 2021'],
+        ['Total hogares','1.690','2021','DANE – ASIS Quípama 2021'],
+        ['Promedio personas por hogar','2,48','2021','DANE – ASIS Quípama 2021'],
+      ]},
+      { title:'Educación (ASIS 2021, Censo 2005)', rows:[
+        ['Analfabetismo (%)','23,3','2018','ASIS 2021 Boyacá'],
+        ['Cobertura bruta primaria (%)','101,1','2020','ASIS 2021 Boyacá'],
+        ['Cobertura bruta secundaria (%)','114,1','2020','ASIS 2021 Boyacá'],
+        ['Cobertura bruta media (%)','114,1','2020','ASIS 2021 Boyacá'],
+        ['Asistencia 6–10 años (%)','94,5','2005','Censo DANE 2005'],
+        ['Asistencia 11–17 años (%)','70,4','2005','Censo DANE 2005'],
+      ]},
+      { title:'Salud (ESAP/DANE, ASIS)', rows:[
+        ['Régimen subsidiado (%)','90,7','2011','ESAP / DANE'],
+        ['Régimen contributivo (%)','8,96','2011','ESAP / DANE'],
+        ['No afiliados (%)','0,25','2011','ESAP / DANE'],
+        ['Tasa bruta de mortalidad (por 1.000)','1,83','2010','ESAP'],
+        ['Principales morbilidades','Caries, HTA, parasitosis','2008–2010','ESAP'],
+      ]},
+      { title:'Servicios públicos (ASIS 2021)', rows:[
+        ['Cobertura electricidad (%)','90,5','2021','ASIS 2021 Boyacá'],
+        ['Cobertura acueducto urbana (%)','100','2021','ASIS 2021 Boyacá'],
+        ['Cobertura acueducto rural (%)','8,95','2021','ASIS 2021 Boyacá'],
+        ['Cobertura acueducto total (%)','28,8','2021','ASIS 2021 Boyacá'],
+        ['Cobertura alcantarillado rural (%)','3,28','2021','ASIS 2021 Boyacá'],
+        ['Índice de riesgo de calidad del agua','Riesgo medio','2021','ASIS 2021 Boyacá'],
+      ]},
+      { title:'Pobreza (DANE – CNPV 2018)', rows:[
+        ['IPM municipal (%)','64,6','2018','DANE – CNPV 2018'],
+        ['IPM cabecera (%)','37,9','2018','DANE – CNPV 2018'],
+        ['IPM rural (%)','76,3','2018','DANE – CNPV 2018'],
+        ['NBI (%)','40,39','—','Doc. análisis Boyacá 2023'],
+      ]},
+      { title:'Economía y empresa (CCT)', rows:[
+        ['Peso en PIB departamental (%)','0,3','2014','CCT – Boyacá en Cifras'],
+        ['Importancia económica (1–10)','7','2014','CCT – Boyacá en Cifras'],
+        ['Total empresas','107','2021','CCT – Tejido Empresarial'],
+        ['Microempresas (%)','100','2021','CCT – Tejido Empresarial'],
+        ['Comercio (%)','45,8','2021','CCT – Tejido Empresarial'],
+        ['Alojamiento y comidas (%)','15,0','2021','CCT – Tejido Empresarial'],
+        ['Agricultura (%)','4,7','2021','CCT – Tejido Empresarial'],
+        ['Minería (%)','4,7','2021','CCT – Tejido Empresarial'],
+        ['Densidad (empresas/1.000 hab.)','21,33','2021','CCT – Tejido Empresarial'],
+      ]},
+    ];
+
+    function Section({ title, rows }){
+      const [q, setQ] = useState('');
+      const filtered = useMemo(()=>{
+        if(!q.trim()) return rows;
+        const s = q.toLowerCase();
+        return rows.filter(r => r.some(cell => String(cell).toLowerCase().includes(s)));
+      }, [q, rows]);
+
+      return (
+        <section className="bg-white rounded-2xl shadow p-5 md:p-6 mb-6">
+          <div className="flex items-end justify-between gap-3 flex-wrap">
+            <h2 className="text-xl md:text-2xl font-semibold" style={{color:'var(--ink)', fontFamily:'var(--heading)'}}>{title}</h2>
+            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar…" className="w-full md:w-72 rounded-xl border px-4 py-2 text-sm focus:outline-none focus:ring-2" />
+          </div>
+          <div className="mt-4 overflow-x-auto">
+            <table className="min-w-full border-separate border-spacing-y-2">
+              <thead>
+                <tr>
+                  {['Indicador','Valor','Año','Fuente'].map(h=> <th key={h} className="text-left text-xs md:text-sm font-medium px-3 py-2" style={{color:'var(--blue)'}}>{h}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((r,i)=> (
+                  <tr key={i} className="hover:bg-gray-50" style={{background:'#F8FAFC'}}>
+                    {r.slice(0,4).map((cell,j)=> <td key={j} className="px-3 py-2 text-sm" style={{color:'var(--ink)'}}>{cell}</td>)}
+                  </tr>
+                ))}
+                {filtered.length===0 && (
+                  <tr><td colSpan="4" className="px-3 py-6 text-center text-sm text-gray-500">Sin resultados.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      );
+    }
+
+    function App(){
+      return (
+        <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-white text-gray-900">
+          <header className="sticky top-0 z-10 backdrop-blur bg-white/80 border-b">
+            <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img src="assets/escudo-quipama.svg" alt="Escudo de Quípama" className="w-11 h-11 rounded-full shadow" />
+                <div>
+                  <h1 className="text-lg md:text-2xl font-bold" style="color:var(--ink); font-family:var(--heading)">Quípama — Banco de Estadísticas</h1>
+                  <p className="text-xs" style="color:var(--blue)">Paleta: #007A3D · #CE1126 · #05006D · #303642</p>
+                </div>
+              </div>
+              <a href="Banco_Estadisticas_Quipama_Ampliado.xlsx" className="rounded-xl px-4 py-2 text-sm font-medium shadow" style="background:var(--red); color:#fff">Descargar Excel</a>
+            </div>
+            <div className="w-full h-1 brand-gradient"></div>
+          </header>
+
+          <main className="max-w-6xl mx-auto px-4 py-6 md:py-10">
+            <!-- KPI Cards -->
+            <div className="grid md:grid-cols-4 gap-4 mb-6">
+              {CARDS.map(c=> (
+                <div key={c.label} className="rounded-2xl shadow p-5 bg-white">
+                  <p className="text-sm" style={{color:'var(--blue)'}}>{c.label}</p>
+                  <p className="text-3xl font-semibold" style={{color:'var(--green)', fontFamily:'var(--heading)'}}>{c.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <!-- Gráficos -->
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              <div className="rounded-2xl shadow p-5 bg-white">
+                <h3 className="text-base md:text-lg font-semibold mb-3" style={{color:'var(--ink)', fontFamily:'var(--heading)'}}>Distribución Urbana vs Rural</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={urbanRural} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100} paddingAngle={2}>
+                        <Cell fill={'#007A3D'} />
+                        <Cell fill={'#05006D'} />
+                      </Pie>
+                      <ReTooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="rounded-2xl shadow p-5 bg-white">
+                <h3 className="text-base md:text-lg font-semibold mb-3" style={{color:'var(--ink)', fontFamily:'var(--heading)'}}>Servicios públicos (%)</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={serviciosPublicos}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="indicador" tick={{ fontSize: 12 }} />
+                      <YAxis />
+                      <ReTooltip />
+                      <Legend />
+                      <Bar dataKey="valor" name="Cobertura" fill={'#CE1126'} radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+            {/* Tablas */}
+            {SECTIONS.map(s=> <Section key={s.title} title={s.title} rows={s.rows} />)}
+
+            <section className="rounded-2xl shadow p-5 md:p-6 bg-white">
+              <h2 className="text-xl md:text-2xl font-semibold" style={{color:'var(--ink)', fontFamily:'var(--heading)'}}>Identidad y fuentes</h2>
+              <ul className="mt-3 space-y-2 list-disc pl-6 text-sm">
+                <li style={{color:'var(--ink)'}}>Manual de Imagen Corporativa (paleta y tipografías)</li>
+                <li style={{color:'var(--ink)'}}>ASIS Quípama 2021 (DANE/Sec. Salud Boyacá)</li>
+                <li style={{color:'var(--ink)'}}>DANE – CNPV 2018 (IPM municipal)</li>
+                <li style={{color:'var(--ink)'}}>Cámara de Comercio de Tunja – Tejido Empresarial</li>
+              </ul>
+            </section>
+
+            <footer className="text-center text-xs mt-10 mb-6" style="color:var(--ink)">© <span id="year"></span> Alcaldía de Quípama — Banco de Estadísticas</footer>
+          </main>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+    document.getElementById('year')?.replaceChildren(String(new Date().getFullYear()));
+  </script>
+</body>
+</html>
