@@ -151,17 +151,17 @@
               <div className="flex items-center gap-3">
                 <img src="assets/escudo-quipama.svg" alt="Escudo de Quípama" className="w-11 h-11 rounded-full shadow" />
                 <div>
-                  <h1 className="text-lg md:text-2xl font-bold" style="color:var(--ink); font-family:var(--heading)">Quípama — Banco de Estadísticas</h1>
-                  <p className="text-xs" style="color:var(--blue)">Paleta: #007A3D · #CE1126 · #05006D · #303642</p>
+                  <h1 className="text-lg md:text-2xl font-bold" style={{color:'var(--ink)', fontFamily:'var(--heading)'}}>Quípama — Banco de Estadísticas</h1>
+                  <p className="text-xs" style={{color:'var(--blue)'}}>Paleta: #007A3D · #CE1126 · #05006D · #303642</p>
                 </div>
               </div>
-              <a href="Banco_Estadisticas_Quipama_Ampliado.xlsx" className="rounded-xl px-4 py-2 text-sm font-medium shadow" style="background:var(--red); color:#fff">Descargar Excel</a>
+              <a href="Banco_Estadisticas_Quipama_Ampliado.xlsx" className="rounded-xl px-4 py-2 text-sm font-medium shadow" style={{background:'var(--red)', color:'#fff'}}>Descargar Excel</a>
             </div>
             <div className="w-full h-1 brand-gradient"></div>
           </header>
 
           <main className="max-w-6xl mx-auto px-4 py-6 md:py-10">
-            <!-- KPI Cards -->
+            {/* KPI Cards */}
             <div className="grid md:grid-cols-4 gap-4 mb-6">
               {CARDS.map(c=> (
                 <div key={c.label} className="rounded-2xl shadow p-5 bg-white">
@@ -171,7 +171,7 @@
               ))}
             </div>
 
-            <!-- Gráficos -->
+            {/* Gráficos */}
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               <div className="rounded-2xl shadow p-5 bg-white">
                 <h3 className="text-base md:text-lg font-semibold mb-3" style={{color:'var(--ink)', fontFamily:'var(--heading)'}}>Distribución Urbana vs Rural</h3>
@@ -219,7 +219,7 @@
               </ul>
             </section>
 
-            <footer className="text-center text-xs mt-10 mb-6" style="color:var(--ink)">© <span id="year"></span> Alcaldía de Quípama — Banco de Estadísticas</footer>
+            <footer className="text-center text-xs mt-10 mb-6" style={{color:'var(--ink)'}}>© <span id="year"></span> Alcaldía de Quípama — Banco de Estadísticas</footer>
           </main>
         </div>
       );
