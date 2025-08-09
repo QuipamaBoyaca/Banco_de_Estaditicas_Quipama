@@ -24,14 +24,16 @@
 <body class="bg-indigo-50">
   <div id="root"></div>
 
-  <!-- React 18 / ReactDOM y Babel para JSX en un solo archivo -->
+  <!-- React / ReactDOM -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel (necesario para JSX en el navegador) -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <!-- Recharts UMD -->
   <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
 
-  <script type="text/babel">
+  <!-- App: ahora con data-presets para que Babel compile JSX -->
+  <script type="text/babel" data-presets="env,react">
     const { useMemo, useState } = React;
     const { ResponsiveContainer, PieChart, Pie, Cell, Tooltip:ReTooltip, Legend, BarChart, Bar, CartesianGrid, XAxis, YAxis } = Recharts;
 
@@ -108,31 +110,33 @@
 
     function Section({ title, rows }){
       const [q, setQ] = useState('');
-      const filtered = useMemo(()=>{
+      const filtered = useMemo(function(){
         if(!q.trim()) return rows;
         const s = q.toLowerCase();
-        return rows.filter(r => r.some(cell => String(cell).toLowerCase().includes(s)));
+        return rows.filter(function(r){ return r.some(function(cell){ return String(cell).toLowerCase().includes(s); }); });
       }, [q, rows]);
 
       return (
         <section className="bg-white rounded-2xl shadow p-5 md:p-6 mb-6">
           <div className="flex items-end justify-between gap-3 flex-wrap">
             <h2 className="text-xl md:text-2xl font-semibold" style={{color:'var(--ink)', fontFamily:'var(--heading)'}}>{title}</h2>
-            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar…" className="w-full md:w-72 rounded-xl border px-4 py-2 text-sm focus:outline-none focus:ring-2" />
+            <input value={q} onChange={function(e){ setQ(e.target.value); }} placeholder="Buscar…" className="w-full md:w-72 rounded-xl border px-4 py-2 text-sm focus:outline-none focus:ring-2" />
           </div>
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-full border-separate border-spacing-y-2">
               <thead>
                 <tr>
-                  {['Indicador','Valor','Año','Fuente'].map(h=> <th key={h} className="text-left text-xs md:text-sm font-medium px-3 py-2" style={{color:'var(--blue)'}}>{h}</th>)}
+                  {['Indicador','Valor','Año','Fuente'].map(function(h){ return <th key={h} className="text-left text-xs md:text-sm font-medium px-3 py-2" style={{color:'var(--blue)'}}>{h}</th>; })}
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((r,i)=> (
-                  <tr key={i} className="hover:bg-gray-50" style={{background:'#F8FAFC'}}>
-                    {r.slice(0,4).map((cell,j)=> <td key={j} className="px-3 py-2 text-sm" style={{color:'var(--ink)'}}>{cell}</td>)}
-                  </tr>
-                ))}
+                {filtered.map(function(r,i){
+                  return (
+                    <tr key={i} className="hover:bg-gray-50" style={{background:'#F8FAFC'}}>
+                      {r.slice(0,4).map(function(cell,j){ return <td key={j} className="px-3 py-2 text-sm" style={{color:'var(--ink)'}}>{cell}</td>; })}
+                    </tr>
+                  );
+                })}
                 {filtered.length===0 && (
                   <tr><td colSpan="4" className="px-3 py-6 text-center text-sm text-gray-500">Sin resultados.</td></tr>
                 )}
@@ -161,17 +165,17 @@
           </header>
 
           <main className="max-w-6xl mx-auto px-4 py-6 md:py-10">
-            {/* KPI Cards */}
             <div className="grid md:grid-cols-4 gap-4 mb-6">
-              {CARDS.map(c=> (
-                <div key={c.label} className="rounded-2xl shadow p-5 bg-white">
-                  <p className="text-sm" style={{color:'var(--blue)'}}>{c.label}</p>
-                  <p className="text-3xl font-semibold" style={{color:'var(--green)', fontFamily:'var(--heading)'}}>{c.value}</p>
-                </div>
-              ))}
+              {CARDS.map(function(c){
+                return (
+                  <div key={c.label} className="rounded-2xl shadow p-5 bg-white">
+                    <p className="text-sm" style={{color:'var(--blue)'}}>{c.label}</p>
+                    <p className="text-3xl font-semibold" style={{color:'var(--green)', fontFamily:'var(--heading)'}}>{c.value}</p>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Gráficos */}
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               <div className="rounded-2xl shadow p-5 bg-white">
                 <h3 className="text-base md:text-lg font-semibold mb-3" style={{color:'var(--ink)', fontFamily:'var(--heading)'}}>Distribución Urbana vs Rural</h3>
@@ -206,8 +210,7 @@
               </div>
             </div>
 
-            {/* Tablas */}
-            {SECTIONS.map(s=> <Section key={s.title} title={s.title} rows={s.rows} />)}
+            {SECTIONS.map(function(s){ return <Section key={s.title} title={s.title} rows={s.rows} />; })}
 
             <section className="rounded-2xl shadow p-5 md:p-6 bg-white">
               <h2 className="text-xl md:text-2xl font-semibold" style={{color:'var(--ink)', fontFamily:'var(--heading)'}}>Identidad y fuentes</h2>
@@ -227,7 +230,7 @@
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
-    document.getElementById('year')?.replaceChildren(String(new Date().getFullYear()));
+    var y = document.getElementById('year'); if (y) { y.textContent = String(new Date().getFullYear()); }
   </script>
 </body>
 </html>
